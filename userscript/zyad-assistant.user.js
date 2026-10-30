@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         赵云与阿斗 - 免广告/固定消耗/无限馒头金币
 // @namespace    zhaoyunadou.cheat
-// @version      15.0
+// @version      16.0
 // @description  免广告、征兵消耗固定、馒头体力与战斗金币无限（Via/移动端兼容）
 // @match        *://h.4399.com/play/262277.htm*
 // @match        *://h.4399.com/zzy/262277.htm*
 // @match        *://h.4399.com/wap/play_default.htm*
 // @match        *://www.4399.com/flash/262277_1.htm*
 // @match        *://sda.4399.com/4399swf/upload_swf/ftp56/huangcijin/20261016/12/*
-// @run-at       document-end
+// @run-at       document-start
 // @all-frames   true
 // @grant        none
 // ==/UserScript==
@@ -18,10 +18,10 @@
 
   var GAME_PATH = '4399swf/upload_swf/ftp56/huangcijin/20261016/12/';
   var SCRIPT_ID = '__zyad_core';
+  var SAVE_KEY = 'playerData';
 
   /* =========================================================
-   * 核心补丁：这段代码会被注入到游戏页(iframe)里执行
-   * 注意：必须是纯函数、不含注释外的特殊字符，避免 Via 内核解析失败
+   * CORE：注入到游戏页执行。必须是纯函数、无注释、无特殊字符
    * ========================================================= */
   var CORE = function () {
     if (window.__zyadCore) return;
@@ -40,22 +40,26 @@
     }
 
     function installAdFree() {
-      var h = window.h5api;
-      if (!h || h.__zyadAdFree) return;
-      var ok = function (cb) {
-        try {
-          if (typeof cb === 'function') {
-            setTimeout(function () {
-              cb({ ok: true, isEnded: true, code: 0, success: true, canPlay: true });
-            }, 50);
-          }
-        } catch (e) {}
-      };
-      try { h.canPlayAd = function (cb) { ok(cb); return true; }; } catch (e) {}
-      try { h.playAd = function (cb) { ok(cb); }; } catch (e) {}
-      try { h.playYlhAd = function (p, cb) { ok(cb); }; } catch (e) {}
-      try { h.playInterstitialAd = function () {}; } catch (e) {}
-      h.__zyadAdFree = true;
+      var names = ['h5api', 'H5API', 'h5wan', 'MetaH5Ad'];
+      for (var i = 0; i < names.length; i++) {
+        var h = window[names[i]];
+        if (!h || h.__zyadAdFree) continue;
+        var ok = function (cb) {
+          try {
+            if (typeof cb === 'function') {
+              setTimeout(function () {
+                cb({ ok: true, isEnded: true, code: 0, success: true, canPlay: true });
+              }, 50);
+            }
+          } catch (e) {}
+        };
+        try { if (h.canPlayAd) h.canPlayAd = function (cb) { ok(cb); return true; }; } catch (e) {}
+        try { if (h.playAd) h.playAd = function (cb) { ok(cb); }; } catch (e) {}
+        try { if (h.playYlhAd) h.playYlhAd = function (p, cb) { ok(cb); }; } catch (e) {}
+        try { if (h.playInterstitialAd) h.playInterstitialAd = function () {}; } catch (e) {}
+        try { if (h.showAd) h.showAd = function (t, cb) { ok(cb); return true; }; } catch (e) {}
+        h.__zyadAdFree = true;
+      }
     }
 
     function fixRaw(raw) {
@@ -218,6 +222,8 @@
     }
 
     setInterval(tick, 150);
+    tick();
+
     window.__ZYAD__ = {
       tick: tick,
       state: function () {
@@ -236,14 +242,9 @@
   };
 
   function coreSource() {
-    try {
-      return '(' + CORE.toString() + ')();';
-    } catch (e) {
-      return null;
-    }
+    try { return '(' + CORE.toString() + ')();'; } catch (e) { return null; }
   }
 
-  /* 把核心注入到指定 document */
   function injectDoc(doc) {
     if (!doc || !doc.head) return false;
     if (doc.getElementById(SCRIPT_ID)) return true;
@@ -256,14 +257,11 @@
       s.textContent = src;
       doc.head.appendChild(s);
       return true;
-    } catch (e) {
-      return false;
-    }
+    } catch (e) { return false; }
   }
 
-  /* 递归向下找所有 frame 并注入 */
   function diveDoc(doc, depth) {
-    if (depth > 4 || !doc) return false;
+    if (depth > 5 || !doc) return false;
     var ok = false;
     var frames;
     try { frames = doc.querySelectorAll('iframe'); } catch (e) { return false; }
@@ -274,7 +272,7 @@
       var sub = null;
       try { sub = f.contentDocument; } catch (e) { sub = null; }
       if (!sub) continue;
-      if (src.indexOf(GAME_PATH) >= 0 || (sub.title && sub.title.indexOf('赵云') >= 0)) {
+      if (src.indexOf(GAME_PATH) >= 0) {
         if (injectDoc(sub)) ok = true;
       }
       if (diveDoc(sub, depth + 1)) ok = true;
@@ -282,9 +280,26 @@
     return ok;
   }
 
-  /* 当前文档本身是不是游戏页 */
   function isGameDoc() {
     return location.href.indexOf(GAME_PATH) >= 0;
+  }
+
+  /* ---------- 纯 localStorage 兜底：不依赖 iframe 访问 ---------- */
+  function storageFallback() {
+    try {
+      var raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      var changed = false;
+      if (o._gold !== 999999) { o._gold = 999999; changed = true; }
+      if (o._stamina !== 9999) { o._stamina = 9999; changed = true; }
+      if (o._weaponFree !== true) { o._weaponFree = true; changed = true; }
+      if (o._hasUsedFreeShovel !== false) { o._hasUsedFreeShovel = false; changed = true; }
+      if (o._hasUsedFreeBulldozer !== false) { o._hasUsedFreeBulldozer = false; changed = true; }
+      if (o._isAdFreeUser !== true) { o._isAdFreeUser = true; changed = true; }
+      o._lastRecoverStaminaTime = Date.now();
+      if (changed) localStorage.setItem(SAVE_KEY, JSON.stringify(o));
+    } catch (e) {}
   }
 
   function boot() {
@@ -293,7 +308,7 @@
 
     if (isGameDoc()) {
       try { eval('(' + CORE.toString() + ')()'); } catch (e) {
-        try { console.log('[ZYAD] inline core fail: ' + e); } catch (x) {}
+        try { console.log('[ZYAD] inline fail: ' + e); } catch (x) {}
       }
       return;
     }
@@ -301,27 +316,28 @@
     var tries = 0;
     var timer = setInterval(function () {
       tries++;
-      var ok = diveDoc(document, 0);
-      if (ok && tries > 6) {
-        clearInterval(timer);
-        return;
-      }
-      if (tries > 300) clearInterval(timer);
-    }, 300);
+      diveDoc(document, 0);
+      if (tries > 400) clearInterval(timer);
+    }, 250);
+
+    /* localStorage 兜底：如果脚本就运行在游戏同域，直接改存档 */
+    storageFallback();
+    setInterval(storageFallback, 500);
 
     window.__ZYAD_TOP__ = {
       dive: function () { return diveDoc(document, 0); },
+      fallback: storageFallback,
       status: function () {
         var out = [];
         (function scan(doc, path, d) {
-          if (d > 4) return;
+          if (d > 5) return;
           var fs;
           try { fs = doc.querySelectorAll('iframe'); } catch (e) { return; }
           for (var i = 0; i < fs.length; i++) {
             var f = fs[i];
             var sub = null;
             try { sub = f.contentDocument; } catch (e) {}
-            var item = {path: path, src: (f.getAttribute('src') || '').slice(-40)};
+            var item = {path: path + '/' + i, src: (f.getAttribute('src') || '').slice(-38)};
             if (sub) {
               item.hasCore = !!sub.getElementById(SCRIPT_ID);
               item.hasLaya = (function () {
@@ -347,5 +363,5 @@
   } else {
     boot();
   }
-  setTimeout(function () { boot(); }, 1500);
+  setTimeout(function () { boot(); }, 1200);
 })();
