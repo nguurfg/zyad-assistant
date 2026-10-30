@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>赵云与阿斗助手 · 一键安装向导</title>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --line:#263041; --panel2:#1c2330;
+  --fg:#e6edf3; --dim:#8b949e; --blue:#2f81f7; --green:#3fb950;
+  --amber:#d29922; --red:#f85149;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--fg);padding-bottom:60px;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header{
+  padding:38px 0 28px;text-align:center;
+  background:linear-gradient(180deg,#151d2b 0%,var(--bg) 100%);
+  border-bottom:1px solid var(--line);
+}
+h1{font-size:24px;font-weight:600}
+h1 em{font-style:normal;color:var(--blue)}
+.sub{color:var(--dim);font-size:13.5px;margin-top:8px}
+.badges{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.badge{
+  padding:3px 11px;border-radius:20px;font-size:11.5px;
+  background:#12261a;color:#6fd08c;border:1px solid #1f4530;
+}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:18px 16px;margin-bottom:14px;
+}
+.card.center{text-align:center}
+
+/* 主按钮 */
+.btn-main{
+  display:block;width:100%;padding:17px;border-radius:11px;border:0;
+  background:linear-gradient(180deg,#2f81f7 0%,#1f6feb 100%);
+  color:#fff;font-size:17px;font-weight:600;cursor:pointer;
+  text-align:center;text-decoration:none;
+  box-shadow:0 4px 16px rgba(47,129,247,.28);
+}
+.btn-main:active{background:#1a5fd0;box-shadow:none}
+.btn-main .sm{display:block;font-size:12px;font-weight:400;opacity:.8;margin-top:3px}
+
+.btn-2{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:13px;border-radius:9px;
+  background:var(--panel2);color:#c9d4e3;border:1px solid #2b3648;
+  font-size:14px;cursor:pointer;text-decoration:none;margin-top:10px;
+}
+.btn-2:active{background:#242d3d}
+
+/* 步骤 */
+.steps{margin-top:16px}
+.step{
+  display:flex;gap:11px;padding:10px 0;
+  border-bottom:1px solid #1b2330;
+}
+.step:last-child{border-bottom:0}
+.num{
+  flex:0 0 22px;height:22px;border-radius:50%;
+  background:#1f6feb;color:#fff;font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:3px;
+}
+.step-body{flex:1;font-size:13.5px;color:#c2ccdb}
+.step-body b{color:#fff}
+.step-body .note{color:var(--amber);font-size:12.5px;margin-top:4px}
+
+h2{
+  font-size:16.5px;font-weight:600;margin:34px 0 13px;padding-left:11px;
+  border-left:3px solid var(--blue);line-height:1.3;
+}
+
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{
+  flex:1;min-width:84px;padding:10px 4px;text-align:center;border-radius:9px;
+  background:#171d27;border:1px solid #232d3d;color:#8e99ac;font-size:13px;cursor:pointer;
+}
+.tab.on{background:#1e3455;border-color:var(--blue);color:#a9c8ff}
+.pane{display:none}
+.pane.on{display:block}
+
+code{
+  background:#0d1117;border:1px solid #232d3d;border-radius:5px;
+  padding:2px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:12.5px;color:#8fc6ff;word-break:break-all;
+}
+pre{
+  background:#0d1117;border:1px solid #232d3d;border-radius:9px;
+  padding:12px;overflow-x:auto;margin:10px 0;
+}
+pre code{background:0;border:0;padding:0;font-size:12px;line-height:1.6}
+.k{
+  display:inline-block;background:#2a2213;color:#ffc07a;border:1px solid #4a3418;
+  border-radius:5px;padding:1px 6px;font-size:12px;
+}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{padding:9px 8px;border-bottom:1px solid #1e2634;text-align:left}
+th{color:var(--dim);font-weight:500}
+td:first-child{color:#c7d0e0}
+.ok{color:var(--green)}.no{color:var(--red)}.mid{color:var(--amber)}
+a{color:var(--blue);text-decoration:none}
+.tip{
+  padding:12px 14px;border-radius:9px;font-size:13px;margin:14px 0;
+  background:#241c14;border:1px solid #4a3418;color:#e0b07a;
+}
+.tip b{color:#ffc07a}
+.tip.ok{
+  background:#12261a;border-color:#1f4530;color:#7ed8a0;
+}
+footer{
+  text-align:center;color:#5a6478;font-size:12px;
+  margin-top:38px;padding-top:20px;border-top:1px solid #1a212d;
+}
+/* 复制反馈 */
+#copyTip{
+  position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(80px);
+  background:#1f6feb;color:#fff;padding:10px 22px;border-radius:24px;
+  font-size:13.5px;opacity:0;transition:.28s;pointer-events:none;z-index:99;
+}
+#copyTip.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>赵云与阿斗<em>助手</em></h1>
+    <div class="sub">免广告 · 无限馒头 · 无限金币 · 固定消耗</div>
+    <div class="badges">
+      <span class="badge">纯本地运行</span>
+      <span class="badge">不碰服务器</span>
+      <span class="badge">开源 MIT</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ========== 主安装区 ========== -->
+  <h2>一键安装</h2>
+  <div class="card center">
+    <a class="btn-main"
+       id="installBtn"
+       href="https://nguurfg.github.io/zyad-assistant/userscript/zyad-assistant.user.js"
+       target="_blank" rel="noopener">
+      ⬇ 一键安装脚本
+      <span class="sm">点这里 → 浏览器弹出「安装脚本」→ 点确认</span>
+    </a>
+
+    <div class="steps" style="text-align:left">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="step-body">
+          <b>点上面的蓝色按钮</b>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="step-body">
+          <b>浏览器弹出安装确认框</b> → 点 <span class="k">安装</span>
+          <div class="note">如果只看到一堆代码、没弹框，说明当前浏览器不支持用户脚本，看下面「分平台说明」</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="step-body">
+          <b>打开游戏页</b> → 进战斗 → 看到左上角消耗显示 <code>2</code> 就成功了
+        </div>
+      </div>
+    </div>
+
+    <a class="btn-2"
+       href="https://raw.githubusercontent.com/nguurfg/zyad-assistant/main/userscript/zyad-assistant.user.js"
+       target="_blank" rel="noopener">
+      🔗 备用地址（Raw）· 油猴也能识别
+    </a>
+    <a class="btn-2" href="https://h.4399.com/play/262277.htm" target="_blank" rel="noopener">
+      🎮 直接打开游戏
+    </a>
+  </div>
+
+  <div class="tip">
+    <b>⚠ Via 用户注意</b><br>
+    必须先开 <span class="k">Via 菜单 → 设置 → 通用/脚本 → 允许网页脚本</span>，
+    否则脚本一行都不执行。
+  </div>
+
+  <!-- ========== 已装好？验证 ========== -->
+  <h2>装好后怎么确认生效</h2>
+  <div class="card">
+    <table>
+      <tr><th>位置</th><th>应显示</th></tr>
+      <tr><td>主界面馒头</td><td><b>9999 / 9999</b></td></tr>
+      <tr><td>主界面铜币</td><td><b>999999</b></td></tr>
+      <tr><td>战斗内金币</td><td><b>100000 左右，征兵不减</b></td></tr>
+      <tr><td>左上角征兵消耗</td><td><b>固定 2</b></td></tr>
+      <tr><td>激励视频</td><td><b>不播放，直接发奖</b></td></tr>
+    </table>
+    <p style="color:var(--dim);font-size:13px;margin-top:12px">
+      进战斗后还能在控制台执行 <code>__ZYAD_TOP__.status()</code> 查注入层级。
+    </p>
+  </div>
+
+  <!-- ========== 分平台 ========== -->
+  <h2>分平台说明</h2>
+  <div class="tabs">
+    <div class="tab on" data-p="chrome">Chrome/Edge</div>
+    <div class="tab" data-p="kiwi">Kiwi</div>
+    <div class="tab" data-p="via">Via</div>
+    <div class="tab" data-p="ios">iOS</div>
+    <div class="tab" data-p="manual">手动</div>
+  </div>
+
+  <div class="pane on" id="p-chrome">
+    <div class="card">
+      <ol style="padding-left:20px;color:#c2ccdb;font-size:13.5px">
+        <li>先装 <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener">Tampermonkey</a> 扩展</li>
+        <li>点上面「⬇ 一键安装脚本」</li>
+        <li>Tampermonkey 弹出安装页 → 点 <span class="k">安装</span></li>
+        <li>打开游戏验证</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pane" id="p-kiwi">
+    <div class="card">
+      <ol style="padding-left:20px;color:#c2ccdb;font-size:13.5px">
+        <li>Kiwi 打开 Chrome 应用商店，装 Tampermonkey</li>
+        <li>点「⬇ 一键安装脚本」</li>
+        <li>点 <span class="k">安装</span></li>
+        <li>进游戏验证</li>
+      </ol>
+      <p style="color:var(--green);font-size:13px;margin-top:10px">
+        Android 上最稳的方案，完整支持油猴能力。
+      </p>
+    </div>
+  </div>
+
+  <div class="pane" id="p-via">
+    <div class="card">
+      <div class="tip" style="margin-top:0">
+        <b>第一步必须先做</b><br>
+        Via 菜单 → 设置 → 通用（或「脚本」）→ 勾选 <span class="k">允许网页脚本</span>
+      </div>
+      <ol style="padding-left:20px;color:#c2ccdb;font-size:13.5px">
+        <li>开启上面的开关</li>
+        <li>点「⬇ 一键安装脚本」，Via 会提示安装 → 确认</li>
+        <li>打开游戏页进战斗</li>
+      </ol>
+      <p style="color:var(--amber);font-size:13px;margin-top:12px">
+        Via 对跨域 iframe 的 <code>contentDocument</code> 访问有限制。
+        本脚本已改为顶层递归下钻注入，多数情况可用；仍不行请换 Kiwi。
+      </p>
+    </div>
+  </div>
+
+  <div class="pane" id="p-ios">
+    <div class="card">
+      <p class="no" style="margin-bottom:10px;font-weight:600">iOS Safari 不支持用户脚本注入</p>
+      <p style="color:#c2ccdb;font-size:13.5px">
+        需要装 <b>Stay</b> 或 <b>Browsers</b> 这类支持 Userscript 的 App，
+        在其设置里导入下面的 Raw 地址：
+      </p>
+      <pre><code>https://raw.githubusercontent.com/nguurfg/zyad-assistant/main/userscript/zyad-assistant.user.js</code></pre>
+    </div>
+  </div>
+
+  <div class="pane" id="p-manual">
+    <div class="card">
+      <p style="color:#c2ccdb;font-size:13.5px">任意支持用户脚本的浏览器，手动添加：</p>
+      <pre><code>https://nguurfg.github.io/zyad-assistant/userscript/zyad-assistant.user.js</code></pre>
+      <a class="btn-2" href="javascript:void(0)" id="copyUrl">📋 复制脚本地址</a>
+    </div>
+  </div>
+
+  <!-- ========== 兼容性 ========== -->
+  <h2>兼容性</h2>
+  <div class="card">
+    <table>
+      <tr><th>浏览器</th><th>状态</th><th>备注</th></tr>
+      <tr><td>Chrome / Edge + TM</td><td class="ok">✅ 正常</td><td>最推荐</td></tr>
+      <tr><td>Firefox + TM</td><td class="ok">✅ 正常</td><td></td></tr>
+      <tr><td>Kiwi + TM</td><td class="ok">✅ 正常</td><td>Android 推荐</td></tr>
+      <tr><td>Via</td><td class="mid">⚠ 需开关</td><td>要开「允许网页脚本」</td></tr>
+      <tr><td>iOS Safari</td><td class="no">❌ 不支持</td><td>换 Stay</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 排障 ========== -->
+  <h2>数字没变？按顺序排查</h2>
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="step-body">确认从 <code>/play/262277.htm</code> 进入，<b>不是</b> <code>/zzy/</code> 详情页</div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="step-body">刷新一次页面（脚本在 DOM 就绪后注入）</div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="step-body">控制台看有没有 <code>[ZYAD] core installed</code></div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="step-body">执行 <code>__ZYAD_TOP__.status()</code>，看 <code>gameIndex.html</code> 那层是否 <code>booted: true</code></div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div class="step-body">Via 用户确认「允许网页脚本」已开</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>本仓库不含任何游戏源码与素材，仅供学习研究</p>
+    <p style="margin-top:6px">
+      <a href="https://github.com/nguurfg/zyad-assistant" target="_blank" rel="noopener">GitHub 仓库</a>
+      ·
+      <a href="https://raw.githubusercontent.com/nguurfg/zyad-assistant/main/userscript/zyad-assistant.user.js" target="_blank" rel="noopener">脚本源码</a>
+    </p>
+  </footer>
+</div>
+
+<div id="copyTip">已复制</div>
+
+<script>
+(function () {
+  // 标签切换
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener('click', function () {
+      var p = this.getAttribute('data-p');
+      for (var j = 0; j < tabs.length; j++) tabs[j].classList.remove('on');
+      this.classList.add('on');
+      var panes = document.querySelectorAll('.pane');
+      for (var k = 0; k < panes.length; k++) panes[k].classList.remove('on');
+      var el = document.getElementById('p-' + p);
+      if (el) el.classList.add('on');
+    });
+  }
+
+  // 复制
+  function toast(msg) {
+    var t = document.getElementById('copyTip');
+    t.textContent = msg;
+    t.classList.add('on');
+    setTimeout(function () { t.classList.remove('on'); }, 1600);
+  }
+  var copyBtn = document.getElementById('copyUrl');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var url = 'https://nguurfg.github.io/zyad-assistant/userscript/zyad-assistant.user.js';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          toast('已复制脚本地址');
+        }, function () { fallbackCopy(url); });
+      } else {
+        fallbackCopy(url);
+      }
+    });
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('已复制脚本地址'); }
+    catch (e) { toast('复制失败，请手动选中'); }
+    document.body.removeChild(ta);
+  }
+
+  // 点安装按钮后给个提示（检测是否被当普通文件下载）
+  var btn = document.getElementById('installBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      setTimeout(function () {
+        // 如果页面没跳走，说明可能被拦截了
+        toast('若没弹安装框，请看下方分平台说明');
+      }, 2500);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
